@@ -6,7 +6,7 @@ const bookSchema = mongoose.Schema({
         type:String,
         required:true
     },
-    authors:{
+    author:{
         type:String,
         required:true
     },
@@ -15,7 +15,7 @@ const bookSchema = mongoose.Schema({
         required:true
     },
     publicationDate:{
-        type:Date,
+        type:String,
         required:true
     },
     genre:{
@@ -31,6 +31,10 @@ const bookSchema = mongoose.Schema({
         required:true,
         enum:["Yes" , "No"]
 
+    },
+    bookCount:{
+        type:Number,
+        required:true,
     }
 },{timestamps:true});
 

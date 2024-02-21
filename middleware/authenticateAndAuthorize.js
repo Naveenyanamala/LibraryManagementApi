@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from "../models/User.model.js";
- const protectRoute = async (req,res,next) => {
+ const authenticateAndAuthorize = async (req,res,next) => {
     try {
       
         const token = req.cookies.jwt;
@@ -12,13 +12,12 @@ import User from "../models/User.model.js";
         
         const decoded = jwt.verify(token,process.env.JWT_SECRET);
         if(!decoded){
-            res.status(401).json({error:`unauthorized - No tokens provided`});
+            res.status(401).json({error: 'Unauthorized - Invalid token' });
         }
-        console.log("hi");
         const user= await User.findOne({ email: decoded.email }).select("-password");
         
         if(!user){
-            return res.status(401).json({error:`user not found`});
+            return res.status(401).json({error: 'Unauthorized - User not found' });
         }
 
         req.user=user;
@@ -29,4 +28,4 @@ import User from "../models/User.model.js";
     }
 }
 
-export default protectRoute;
+export default authenticateAndAuthorize;
