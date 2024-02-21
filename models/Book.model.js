@@ -22,10 +22,10 @@ const bookSchema = mongoose.Schema({
         type:String,
         required:true,
     },
-    coverImageUrl:{
+    coverImage: {
         type:String,
-        default:"",
-    },
+        required:true,  // Mime type of the image
+      },
     availability:{
         type:String,
         required:true,

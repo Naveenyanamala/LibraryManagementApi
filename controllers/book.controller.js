@@ -3,30 +3,45 @@ import bookModel from '../models/Book.model.js';
 
 export const createBook = async (req,res ) => {
     try {
+        const reqData= JSON.parse(req.body.body);
         
-        const{title,author,ISBN,publicationDate,genre,coverImageUrl,availability,bookCount} =req.body;
+        const{title,author,ISBN,publicationDate,genre,availability,bookCount} =JSON.parse(req.body.body);
         const user=req.user;
        
         if(user.role !== 'admin' && user.role!=='librarians'){
             return res.status(403).json({message:`Unauthorized`});
         }
+        console.log(title);
+        console.log(author);
+        console.log(ISBN);
+        console.log(publicationDate);
+        console.log(genre);
+        console.log(availability);
+        console.log(bookCount);
 
         
-        if(!title || !author || !ISBN || !publicationDate|| !genre|| !coverImageUrl || !availability || !bookCount ){
-            res.status(400).json({error:`provide all fields`});
+        if (!title || !author || !ISBN || !publicationDate || !genre || !availability || !bookCount) {
+            return res.status(400).json({ error: "Provide all fields" });
         }
 
         const existingBook = await bookModel.findOne({ title });
-        
         if(existingBook){
 
             existingBook.bookCount = (existingBook.bookCount || 0)+1;
+            
+            if(req.file){
+                existingBook.coverImage =req.file.path;
+            }
+            
+
             await existingBook.save();
             res.status(200).json({book: existingBook});
 
         }else{
-
-            const book = await bookModel.create(req.body);
+            const coverImage = req.file ? req.file.path:"";
+            
+            const book = await bookModel.create({ ...reqData,coverImageUrl});
+            
             res.status(201).json({book});
         }
      
@@ -53,23 +68,21 @@ export const getAllBooks = async (req, res) => {
 
 export const getBook = async (req, res) => {
     try {
-        const{name} =req.params
-        console.log(name);
-        const booktitle = await bookModel.findOne();
-        const bookauthor = await bookModel.findOne({author:name});
+        const name =req.params.books;
+        const booktitle = await bookModel.findOne({title:name});
+        const bookauthor = await bookModel.find({author:name});
 
         if(!booktitle  && ! bookauthor){
             return res.status(404).json({ error: 'No books found' });
         }
 
-        // if (booktitle.length === 0 || bookauthor.length === 0) {
-        //     return res.status(404).json({ error: 'No books found' });
-        // }
-        if(bookauthor){
-            res.status(200).json({ bookauthor });
-        }else{
+        
+        if(booktitle){
             res.status(200).json({ booktitle });
+        }else{
+            res.status(200).json({ bookauthor });
         }
+      
         
     } catch (error) {
         console.error("Error fetching books:", error);
