@@ -135,7 +135,7 @@ export const deleteBook = async (req, res) => {
             return res.status(404).json({ error: 'Book not found' });
         }
 
-        res.status(204).json({});
+        res.status(204).json({message:`book deleted`});
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
     }
