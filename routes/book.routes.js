@@ -13,7 +13,7 @@ import {
 
 
 router.get('/',getAllBooks);
-router.post('/',authenticateAndAuthorize,upload.single("file"),createBook);
+router.post('/',authenticateAndAuthorize,upload.array("file[]"),createBook);
 router.patch('/:id',authenticateAndAuthorize,updateBook)
 router.delete('/:id',authenticateAndAuthorize,deleteBook);
 router.get('/:books', getBook);

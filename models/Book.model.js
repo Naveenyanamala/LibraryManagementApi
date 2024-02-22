@@ -22,15 +22,13 @@ const bookSchema = mongoose.Schema({
         type:String,
         required:true,
     },
-    coverImage: {
+    coverImageUrl: {
         type:String,
-        required:true,  // Mime type of the image
+        required:true,  
       },
     availability:{
-        type:String,
-        required:true,
-        enum:["Yes" , "No"]
-
+        type:Boolean,
+        default:false
     },
     bookCount:{
         type:Number,

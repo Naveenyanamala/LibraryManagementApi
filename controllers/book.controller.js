@@ -11,36 +11,42 @@ export const createBook = async (req,res ) => {
         if(user.role !== 'admin' && user.role!=='librarians'){
             return res.status(403).json({message:`Unauthorized`});
         }
-        console.log(title);
-        console.log(author);
-        console.log(ISBN);
-        console.log(publicationDate);
-        console.log(genre);
-        console.log(availability);
-        console.log(bookCount);
-
         
         if (!title || !author || !ISBN || !publicationDate || !genre || !availability || !bookCount) {
             return res.status(400).json({ error: "Provide all fields" });
         }
 
         const existingBook = await bookModel.findOne({ title });
+        
         if(existingBook){
 
             existingBook.bookCount = (existingBook.bookCount || 0)+1;
             
-            if(req.file){
-                existingBook.coverImage =req.file.path;
+            if(req.files){
+                let path= ''
+                req.files.forEach((files,index,arr) => {
+                    path= path+ files.path + ','
+                })
+                path = path.subst(0,path.lastIndexOf(","))
+                existingBook.coverImage =path;
             }
             
-
+            
             await existingBook.save();
             res.status(200).json({book: existingBook});
 
         }else{
-            const coverImage = req.file ? req.file.path:"";
+            let path= ''
             
-            const book = await bookModel.create({ ...reqData,coverImageUrl});
+            req.files.forEach((files,index,arr) => {
+                path= path+ files.path + ','
+            })
+            
+            path = path.substring(0,path.lastIndexOf(","));
+            console.log(bookCount);
+            const coverImage = path ;
+            
+            const book = await bookModel.create({ ...reqData,coverImage});
             
             res.status(201).json({book});
         }

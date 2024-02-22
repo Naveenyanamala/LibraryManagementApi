@@ -1,27 +1,13 @@
 import mongoose from "mongoose";
 
-const bookLoanSchema = mongoose.Schema({
-    bookTitle:{
-        type:String,
-        required:true,
-    },
-    checkoutDate: {
-        type: Date,
-        required: true,
-    },
-    dueDate: {
-        type: Date,
-        required: true,
-    },
-});
 
 const borrowSchema = mongoose.Schema({
-    userName:{
+    username:{
         type:String,
         required:true,
     },
     email:{
-        type:email,
+        type:String,
         required:true,
     },
     bookLoans:{
@@ -29,11 +15,30 @@ const borrowSchema = mongoose.Schema({
         required:true,
         default:0
     },
-    bookCheckOut:[bookLoanSchema],
+    
+    bookCheckOut:[{
+        bookTitle:{
+            type:String,
+            required:true,
+        },
+        checkoutDate: {
+             type: Date,
+            required: true,
+        },
+            dueDate: {
+            type: Date,
+            required: true,
+        },
+        returned:{
+            type:Boolean,
+            default:false
+        }
+        }
+    ],
    
 })
 
 
-const Borrow = mongoose.model("Borrow",borrowSchema);
+const borrowModel = mongoose.model("Borrow",borrowSchema);
 
-export default Borrow;
+export default borrowModel;

@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import ConnectDB from './db/ConnectToMongodb.js';
 import authRoutes from './routes/auth.routes.js';
 import bookRoutes from './routes/book.routes.js';
+import borrowRoutes from './routes/borrow.routes.js';
 import cors from 'cors';
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.get('/' ,(req,res) => {
 
 app.use('/api/auth',authRoutes);
 app.use('/api/book',bookRoutes);
+app.use('/api/borrow',borrowRoutes);
 
 
 
