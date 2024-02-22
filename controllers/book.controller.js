@@ -1,5 +1,5 @@
 import bookModel from '../models/Book.model.js';
-
+import validator from 'validator';
 
 export const createBook = async (req,res ) => {
     try {
@@ -7,7 +7,6 @@ export const createBook = async (req,res ) => {
         
         const{title,author,ISBN,publicationDate,genre,availability,bookCount} =JSON.parse(req.body.body);
         const user=req.user;
-       
         if(user.role !== 'admin' && user.role!=='librarians'){
             return res.status(403).json({message:`Unauthorized`});
         }

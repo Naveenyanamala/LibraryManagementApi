@@ -1,16 +1,27 @@
 import jwt from 'jsonwebtoken';
+import UserToken from "../models/userToken.model.js";
 
+const generateTokenAndSetCookies = async(email) => {
+    try {
+        const accessToken = jwt.sign ({email},process.env.ACCESS_TOKEN_PRIVATE_KEY,{
+            expiresIn:'15m'
+        });
+    
+        const refreshToken = jwt.sign ({email},process.env.REFRESH_TOKEN_PRIVATE_KEY,{
+            expiresIn:'30d'
+        });
+    
+        const userToken = await UserToken.findOne({email});
+        if(userToken) await userToken.deleteOne();
 
-const generateTokenAndSetCookies = (email,res) => {
-    const token = jwt.sign ({email},process.env.JWT_SECRET,{
-        expiresIn:'15d'
-    });
-    res.cookie("jwt",token,{
-        maxAge:15*24*60*60*1000,
-        httpOnly:true,
-        sameSite:"strict",
-        secure: process.env.NODE_ENV !== "development"
-    });
+        await new UserToken({email, token:refreshToken}).save();
+
+        return Promise.resolve({accessToken,refreshToken});
+    
+    
+    } catch (error) {
+        return Promise.reject(error);
+    }
 };
 
 

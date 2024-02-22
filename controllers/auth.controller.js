@@ -1,17 +1,37 @@
 import generateTokenAndSetCookies from '../utils/generateToken.js';
 import User from "../models/User.model.js";
 import bcrypt from 'bcryptjs';
+import {
+    signUpBodyValidation,
+    logInBodyValidation,
+} from "../utils/validationSchema.js";
 
 export const signup =async (req,res) => {
     try {
-;
-        const {name,email,password,confirmPassword,role} =req.body;
-        if(password !== confirmPassword){
-            res.status(400).json({error:`password doesn't match`});
+
+        const { error } = signUpBodyValidation(req.body);
+        if (error){
+            return res.status(400).json({ error: true, message: error.details[0].message });
         }
+
+        const {name,email,password,confirmPassword} =req.body;
+
+        if( !name|| !email|| !password|| !confirmPassword ){
+            return res.status(400).json({message:`Provide all fields`});
+        }
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: `Invalid email format` });
+        }
+
+        if(password !== confirmPassword){
+            return res.status(400).json({error:`password doesn't match`});
+        }
+
         const userFind= await User.findOne({email});
         if(userFind){
-            res.status(400).json({error:`email already exists`});
+            return res.status(400).json({error:`email already exists`});
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -20,19 +40,18 @@ export const signup =async (req,res) => {
             name,
             email,
             password:hashedPassword,
-            role
         });
 
         if(newUser){
             generateTokenAndSetCookies(newUser.email, res);
             await newUser.save();
-            res.status(201).json({
+            return res.status(201).json({
                 _id:newUser._id,
                 name:newUser.name,
                 email:newUser.email
             });
         }else{
-            res.status(400).json({error:`Invalid user data`});
+            return res.status(400).json({error:`Invalid user data`});
         }
     } catch (error) {
         console.log(`error in signup`);
@@ -43,19 +62,28 @@ export const signup =async (req,res) => {
 
 export const login  = async (req,res) => {
     try {
+        const { error } = logInBodyValidation(req.body);
+        if (error){
+            return res.status(400).json({ error: true, message: error.details[0].message })
+        }
+
         const {email,password} = req.body;
+        
         const user = await User.findOne({email});
 
         const isvalidPassword= await bcrypt.compare(password,user?.password || "");
         if(!user || !isvalidPassword){
             return res.status(400).json({error:`Invalid credentials`});
         }
+
+        const { accessToken, refreshToken } = await generateTokenAndSetCookies(user.email);
         
-        generateTokenAndSetCookies(user.email,res);
-        res.status(201).json({
+        return res.status(200).json({
             _id:user._id,
             name:user.name,
-            email:user.email
+            email:user.email,
+            accessToken,
+            refreshToken
         });
     } catch (error) {
         console.log(`error in login`);

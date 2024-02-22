@@ -6,10 +6,16 @@ import authRoutes from './routes/auth.routes.js';
 import bookRoutes from './routes/book.routes.js';
 import borrowRoutes from './routes/borrow.routes.js';
 import cors from 'cors';
+import refreshTokenRoutes from "./routes/refreshToken.js";
+
+// import overdueNotificationMiddleware from './middleware/sendOverdueEmails.js';
+
+
 
 dotenv.config();
 const app = express();
-app.use(cookieParser());
+// app.use(cookieParser());
+app.use("/api/refreshToken", refreshTokenRoutes);
 app.use(express.json());
 app.use(cors());
 app.use('/uploads',express.static('uploads'));
