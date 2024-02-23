@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 
+const Schema = mongoose.Schema;
 
-
-const userTokenSchema =  mongoose.Schema({
-    email: { 
-        type: String, 
+const userTokenSchema =  new Schema({
+    userId: { 
+        type: Schema.Types.ObjectId, 
         required: true 
     },
     token: { 

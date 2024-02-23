@@ -1,27 +1,31 @@
-import { Router } from "express";
+import express from 'express';
 import UserToken from "../models/userToken.model.js";
 import jwt from "jsonwebtoken";
 import { refreshTokenBodyValidation } from "../utils/validationSchema.js";
 import verifyRefreshToken from "../utils/verifyRefreshToken.js";
 
-const router = Router();
+const router = express.Router();
 
 // get new access token
-router.post("/", async (req, res) => {
+export const refreshToken= async (req, res) => {
+    
     const { error } = refreshTokenBodyValidation(req.body);
     if (error)
         return res
             .status(400)
             .json({ error: true, message: error.details[0].message });
 
+   
     verifyRefreshToken(req.body.refreshToken)
         .then(({ tokenDetails }) => {
-            const payload = { _id: tokenDetails._id, roles: tokenDetails.roles };
+            
+            const payload = { _id: tokenDetails.userId};
             const accessToken = jwt.sign(
                 payload,
                 process.env.ACCESS_TOKEN_PRIVATE_KEY,
                 { expiresIn: "14m" }
             );
+           
             res.status(200).json({
                 error: false,
                 accessToken,
@@ -29,7 +33,7 @@ router.post("/", async (req, res) => {
             });
         })
         .catch((err) => res.status(400).json(err));
-});
+};
 
 // logout
 router.delete("/", async (req, res) => {

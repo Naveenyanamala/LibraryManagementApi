@@ -3,10 +3,12 @@ import validator from 'validator';
 
 export const createBook = async (req,res ) => {
     try {
+
         const reqData= JSON.parse(req.body.body);
         
-        const{title,author,ISBN,publicationDate,genre,availability,bookCount} =JSON.parse(req.body.body);
+        const{title,author,ISBN,publicationDate,genre,availability,bookCount} =reqData;
         const user=req.user;
+        
         if(user.role !== 'admin' && user.role!=='librarians'){
             return res.status(403).json({message:`Unauthorized`});
         }
@@ -27,14 +29,15 @@ export const createBook = async (req,res ) => {
                     path= path+ files.path + ','
                 })
                 path = path.subst(0,path.lastIndexOf(","))
-                existingBook.coverImage =path;
+                existingBook.coverImageUrl =path;
             }
             
             
             await existingBook.save();
-            res.status(200).json({book: existingBook});
+            return res.status(200).json({book: existingBook});
 
-        }else{
+        }
+           
             let path= ''
             
             req.files.forEach((files,index,arr) => {
@@ -42,16 +45,17 @@ export const createBook = async (req,res ) => {
             })
             
             path = path.substring(0,path.lastIndexOf(","));
-            console.log(bookCount);
-            const coverImage = path ;
             
-            const book = await bookModel.create({ ...reqData,coverImage});
+            const coverImageUrl = path ;
+            console.log(coverImageUrl);
+            const book = await bookModel.create({ ...reqData,coverImageUrl:coverImageUrl});
             
-            res.status(201).json({book});
-        }
+            return res.status(201).json({book});
+        
+        
      
     } catch (error) {
-        res.status(500).json({error:`Internal server error`});
+        return res.status(500).json({error:`Internal server error`});
     }
 };
 

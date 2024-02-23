@@ -11,7 +11,6 @@ const userSchema = mongoose.Schema({
         unique: true,
         trim: true,
         lowercase: true,  // Ensure email is stored in lowercase
-        validate: [validator.isEmail, 'Invalid email format'], 
     },
     password:{
         type:String,

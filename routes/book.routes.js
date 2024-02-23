@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import upload from '../middleware/upload.js';
-import authenticateAndAuthorize from '../middleware/authenticateAndAuthorize.js';
+import {authenticate ,admin} from '../middleware/authenticateAndAuthorize.js';
 import {
     createBook ,
     getAllBooks,
@@ -10,13 +10,16 @@ import {
     deleteBook
 } from  '../controllers/book.controller.js'
 
+router.route('/').get(getAllBooks);
+router.route('/:books').get(getBook);
+
+router.route('/adminbook').post(authenticate,admin,upload.array("files[]"),createBook);
+
+router.route('/:id').
+        patch(authenticate,admin,updateBook)
+        .delete(authenticate,admin,deleteBook);
 
 
-router.get('/',getAllBooks);
-router.post('/',authenticateAndAuthorize,upload.array("file[]"),createBook);
-router.patch('/:id',authenticateAndAuthorize,updateBook)
-router.delete('/:id',authenticateAndAuthorize,deleteBook);
-router.get('/:books', getBook);
 
 
 

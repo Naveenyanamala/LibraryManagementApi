@@ -26,7 +26,7 @@ app.get('/' ,(req,res) => {
 })
 
 
-app.use('/api/auth',authRoutes);
+app.use('/api/users',authRoutes);
 app.use('/api/book',bookRoutes);
 app.use('/api/borrow',borrowRoutes);
 
