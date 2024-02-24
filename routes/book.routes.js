@@ -13,10 +13,10 @@ import {
 router.route('/').get(getAllBooks);
 router.route('/:books').get(getBook);
 
-router.route('/adminbook').post(authenticate,admin,upload.array("files[]"),createBook);
+router.route('/adminbook').post(authenticate,admin,upload.single("file"),createBook);
 
 router.route('/:id').
-        patch(authenticate,admin,updateBook)
+        patch(authenticate,admin,upload.single("file"),updateBook)
         .delete(authenticate,admin,deleteBook);
 
 

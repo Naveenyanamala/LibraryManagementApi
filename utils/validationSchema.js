@@ -27,3 +27,4 @@ export const refreshTokenBodyValidation = (body) => {
     });
     return schema.validate(body);
 };
+

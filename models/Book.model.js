@@ -25,7 +25,11 @@ const bookSchema = mongoose.Schema({
     coverImageUrl: {
         type:String,
         required:true,  
-      },
+    },
+    pdfDocument:{
+        type:String,
+        required:false,
+    },
     availability:{
         type:Boolean,
         default:false

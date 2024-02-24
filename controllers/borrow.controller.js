@@ -7,6 +7,22 @@ export const checkOut = async(req,res) => {
     try {
         
         const {title,checkoutDate,dueDate,username,email} =req.body;
+        const nameRegex = /^[A-Za-z]+$/; // This regex allows only alphabets
+            
+        if (!username || !nameRegex.test(username)) {
+            return res.status(400).json({ error: true, message: "Invalid author format" });
+        }
+
+        const titleRegex = /^[A-Za-z]+$/; // This regex allows only alphabets
+        
+        if (!title || !titleRegex.test(title)) {
+            return res.status(400).json({ error: true, message: "Invalid name format" });
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: `Invalid email format` });
+        }
 
         const user= await borrowModel.findOne({ email});
 
@@ -55,9 +71,20 @@ export const checkOut = async(req,res) => {
 export const bookReturn = async (req,res) =>{
     try {
         const title =req.params.book;
-        const {email} =req.body;
+        const {email,username} =req.body;
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: `Invalid email format` });
+        }
+
         const user= await borrowModel.findOne({ email});
-       
+
+        const nameRegex = /^[A-Za-z]+$/; // This regex allows only alphabets
+            
+        if (!username || !nameRegex.test(username)) {
+            return res.status(400).json({ error: true, message: "Invalid author format" });
+        }
         if(!user){
             return res.status(404).json({ error: 'User not found' });
         }

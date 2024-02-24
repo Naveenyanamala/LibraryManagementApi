@@ -1,56 +1,67 @@
 import bookModel from '../models/Book.model.js';
-import validator from 'validator';
+import { validateName } from '../middleware/bookvalidate.js';
 
 export const createBook = async (req,res ) => {
     try {
-
+       
         const reqData= JSON.parse(req.body.body);
         
         const{title,author,ISBN,publicationDate,genre,availability,bookCount} =reqData;
+
         const user=req.user;
+
+        const titleRegex = /^[A-Za-z]+$/; // This regex allows only alphabets
         
+        if (!title || !titleRegex.test(title)) {
+            return res.status(400).json({ error: true, message: "Invalid name format" });
+        }
+
+        const numberISBN = /^[0-9]+$/; // This regex allows only numbers
+
+        if (!ISBN || !numberISBN.test(ISBN)) {
+            return res.status(400).json({ error: true, message: "Invalid ISBN format" });
+        }
+
+        if (!bookCount || !numberISBN.test(bookCount)) {
+            return res.status(400).json({ error: true, message: "Invalid nambookCounte format" });
+        }
+
+        const nameRegex = /^[A-Za-z]+$/; // This regex allows only alphabets
+            
+        if (!author || !nameRegex.test(author)) {
+            return res.status(400).json({ error: true, message: "Invalid author format" });
+        }
+            
+        if (!genre || !nameRegex.test(genre)) {
+            return res.status(400).json({ error: true, message: "Invalid genre format" });
+        }
+
         if(user.role !== 'admin' && user.role!=='librarians'){
             return res.status(403).json({message:`Unauthorized`});
         }
         
+      
+
         if (!title || !author || !ISBN || !publicationDate || !genre || !availability || !bookCount) {
             return res.status(400).json({ error: "Provide all fields" });
         }
 
         const existingBook = await bookModel.findOne({ title });
-        
+       
         if(existingBook){
 
             existingBook.bookCount = (existingBook.bookCount || 0)+1;
-            
-            if(req.files){
-                let path= ''
-                req.files.forEach((files,index,arr) => {
-                    path= path+ files.path + ','
-                })
-                path = path.subst(0,path.lastIndexOf(","))
-                existingBook.coverImageUrl =path;
-            }
-            
-            
+           
             await existingBook.save();
             return res.status(200).json({book: existingBook});
 
         }
-           
-            let path= ''
             
-            req.files.forEach((files,index,arr) => {
-                path= path+ files.path + ','
-            })
+        const coverImageUrl = "http://localhost:5000/" +req.file.path ;
+        
+        const book = await bookModel.create({ ...reqData,coverImageUrl:coverImageUrl});
             
-            path = path.substring(0,path.lastIndexOf(","));
-            
-            const coverImageUrl = path ;
-            console.log(coverImageUrl);
-            const book = await bookModel.create({ ...reqData,coverImageUrl:coverImageUrl});
-            
-            return res.status(201).json({book});
+        return res.status(201).json({book});
         
         
      
@@ -81,7 +92,7 @@ export const getBook = async (req, res) => {
         const booktitle = await bookModel.findOne({title:name});
         const bookauthor = await bookModel.find({author:name});
 
-        if(!booktitle  && ! bookauthor){
+        if(!booktitle  || ! bookauthor){
             return res.status(404).json({ error: 'No books found' });
         }
 
@@ -104,19 +115,48 @@ export const updateBook = async (req, res) => {
     try {
         const { id } = req.params;
         const user = req.user;
-       
-        if (user.role !== 'admin' && user.role !== 'librarian') {
-            return res.status(403).json({ message: 'Unauthorized' });
-        }
-        
-        
+
         const updatedBook = await bookModel.findByIdAndUpdate({_id:id}, req.body, { new: true });
 
         if (!updatedBook) {
             return res.status(404).json({ error: 'Book not found' });
         }
 
-        res.status(200).json({ updatedBook });
+        console.log(req.body);
+        const{title,author,ISBN,publicationDate,genre,availability,bookCount} =req.body;
+
+        const titleRegex = /^[A-Za-z]+$/; // This regex allows only alphabets
+        
+        if (!title || !titleRegex.test(title)) {
+            return res.status(400).json({ error: true, message: "Invalid name format" });
+        }
+
+        const numberISBN = /^[0-9]+$/; // This regex allows only numbers
+
+        if (!ISBN || !numberISBN.test(ISBN)) {
+            return res.status(400).json({ error: true, message: "Invalid ISBN format" });
+        }
+
+        if (!bookCount || !numberISBN.test(bookCount)) {
+            return res.status(400).json({ error: true, message: "Invalid nambookCounte format" });
+        }
+
+        const nameRegex = /^[A-Za-z]+$/; // This regex allows only alphabets
+            
+        if (!author || !nameRegex.test(author)) {
+            return res.status(400).json({ error: true, message: "Invalid author format" });
+        }
+            
+        if (!genre || !nameRegex.test(genre)) {
+            return res.status(400).json({ error: true, message: "Invalid genre format" });
+        }
+
+        if (user.role !== 'admin' && user.role !== 'librarian') {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        
+        return res.status(200).json({ updatedBook });
+
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
     }
@@ -138,7 +178,7 @@ export const deleteBook = async (req, res) => {
             return res.status(404).json({ error: 'Book not found' });
         }
 
-        res.status(204).json({message:`book deleted`});
+        return res.status(204).json({message:`book deleted`});
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
     }

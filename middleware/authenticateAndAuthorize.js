@@ -32,7 +32,7 @@ export const authenticate = async (req,res,next) => {
             next();
         } catch (error) {
             console.log(`Error in protected middleware`);
-            res.status(500).json({error:`Internal server error`});
+            return res.status(500).json({error:`Internal server error`});
         }
     }
 };
